@@ -1,6 +1,8 @@
 import './bootstrap';
 import '../css/app.css';
 
+import router from './router';
+
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -21,3 +23,12 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
+
+createInertiaApp({
+    resolve: name => require(`./Pages/${name}`),
+    setup({ el, App, props }) {
+      createApp({ render: () => h(App, props) })
+        .use(router) 
+        .mount(el);
+    },
+  });
