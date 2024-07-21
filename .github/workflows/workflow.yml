@@ -1,0 +1,74 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3.9'
+        extensions: mbstring, sqlite3, bcmath, xml, curl, zip, mysqli
+        coverage: xdebug
+
+    - name: Install Composer dependencies
+      run: |
+        cd online-library
+        composer install --prefer-dist --no-interaction
+
+    - name: Update Composer dependencies
+      run: |
+        cd online-library
+        composer update
+
+    - name: Set up environment file for Backend
+      run: |
+        cd online-library
+        cp .env.example .env
+
+    - name: Generate application key
+      run: |
+        cd online-library
+        php artisan key:generate
+
+    - name: Run database migrations
+      run: |
+        cd online-library
+        php artisan migrate --force
+
+    - name: Cache configuration
+      run: |
+        cd online-library
+        php artisan config:cache
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.15.1'
+
+    - name: Set up environment file for Frontend
+      run: |
+        cd online-library
+        cp .env.example .env
+
+    - name: Install Node.js dependencies
+      run: |
+        cd online-library
+        npm install
+
+    - name: Build frontend
+      run: |
+        cd online-library
+        npm run build
