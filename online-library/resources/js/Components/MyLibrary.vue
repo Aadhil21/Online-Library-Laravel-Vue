@@ -21,7 +21,7 @@ export default {
       csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
     };
   },
-  async created() {
+  async created() { // Loading user books
     const response = await fetch('/api/my-library');
     this.borrowedBooks = await response.json();
   },
@@ -35,7 +35,7 @@ export default {
         },
         body: JSON.stringify({ book_id: bookId })
       });
-      this.borrowedBooks = this.borrowedBooks.filter(book => book.id !== bookId);
+      this.borrowedBooks = this.borrowedBooks.filter(book => book.id !== bookId); // Removing returned book frm the ui
     }
   }
 };

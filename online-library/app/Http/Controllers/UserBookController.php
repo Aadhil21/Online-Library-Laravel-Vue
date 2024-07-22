@@ -10,12 +10,14 @@ class UserBookController extends Controller
     {
         $user = Auth::user();
         
+        // Check if user is authenticated
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
 
         $books = $user->books()->wherePivot('returned', false)->get();
         
+        // Check if the user borrowed any books
         if ($books->isEmpty()) {
             return response()->json(['message' => 'No borrowed books found'], 404);
         }

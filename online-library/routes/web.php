@@ -26,5 +26,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Import routes
 require __DIR__.'/auth.php';
 require __DIR__.'/api.php';

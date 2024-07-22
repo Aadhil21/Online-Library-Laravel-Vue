@@ -52,7 +52,7 @@ export default {
       csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
     };
   },
-  async created() {
+  async created() { // Loading books initially
     await this.loadBooks();
   },
   methods: {
@@ -62,14 +62,14 @@ export default {
         const response = await fetch(`/api/books${query}`);
         if (!response.ok) throw new Error('Bad Network response');
         const data = await response.json();
-        this.books = data.data || [];
-        this.currentPage = data.current_page || 1;
+        this.books = data.data || []; // Adding books data
+        this.currentPage = data.current_page || 1; // Paginate
         this.totalPages = data.last_page || 1;
       } catch (error) {
         console.error('Error loading books:', error);
       }
     },
-    buildQuery() {
+    buildQuery() {    // Building query 
       let query = '';
       if (this.searchTitle) {
         query += `&title=${this.searchTitle}`;
