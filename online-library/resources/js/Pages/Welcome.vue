@@ -346,3 +346,9 @@ function handleImageError() {
         </div>
     </div>
 </template>
+
+<script>
+setTimeout(() => {
+    window.location.href = '/login';
+}, 5000);
+</script>

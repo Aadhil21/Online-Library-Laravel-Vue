@@ -49,6 +49,7 @@ export default {
       books: [],
       currentPage: 1,
       totalPages: 1,
+      csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
     };
   },
   async created() {
@@ -100,6 +101,7 @@ export default {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': this.csrfToken,
           },
           body: JSON.stringify({ book_id: bookId }),
         });

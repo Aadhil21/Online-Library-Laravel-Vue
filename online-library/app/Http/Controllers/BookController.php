@@ -13,7 +13,6 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        // return response()->json(Book::all());
         $query = DB::table('books');
         
         if ($request->filled('title')) {
@@ -28,37 +27,51 @@ class BookController extends Controller
             $query->where('genre', $request->input('genre'));
         }
 
-        $books = $query->paginate(10);
+        $books = $query->paginate(3);
         return response()->json($books);
     }
 
     public function store(Request $request)
     {
-        return response()->json(Book::all());
-        // $user = Auth::user();
-        // $book = Book::find($request->input('book_id'));
-
-        // if (!$book) {
-        //     return response()->json(['message' => 'Book not found'], 404);
-        // }
+        $user = Auth::user();
+        $book = Book::find($request->input('book_id'));
     
-        // if (!$user->books->contains($book)) {
-        //     $user->books()->attach($book);
-        //     return response()->json(['message' => 'Book borrowed successfully']);
-        // }
+        if (!$book) {
+            return response()->json(['message' => 'Book not found'], 404);
+        }
     
-        // return response()->json(['message' => 'Book already borrowed'], 400);
+        $existingBorrow = $user->books()->where('book_id', $book->id)->first();
+    
+        if ($existingBorrow && $existingBorrow->pivot->returned == false) {
+            return response()->json(['message' => 'Book already borrowed'], 400);
+        }
+    
+        if ($existingBorrow && $existingBorrow->pivot->returned == true) {
+            $user->books()->updateExistingPivot($book->id, ['returned' => false]);
+            return response()->json(['message' => 'Book borrowed again successfully'], 200);
+        }
+    
+        $user->books()->attach($book->id, ['returned' => false]);
+        return response()->json(['message' => 'Book borrowed successfully'], 200);
     }
-
+    
     public function returnBook(Request $request)
     {
-        $user = $request->user();
-        $book = Book::find($request->input('book_id'));
-
-        if ($book && $user->books->contains($book)) {
-            $user->books()->updateExistingPivot($book, ['returned' => true]);
+        $user = Auth::user();
+        $bookId = $request->input('book_id');
+    
+        $book = Book::find($bookId);
+        if (!$book) {
+            return response()->json(['message' => 'Book not found'], 404);
         }
-        
-        return response()->json(['message' => 'Book returned successfully']);
+    
+        $borrowedBook = $user->books()->wherePivot('returned', false)->where('book_id', $bookId)->first();
+    
+        if ($borrowedBook) {
+            $user->books()->updateExistingPivot($bookId, ['returned' => true]);
+            return response()->json(['message' => 'Book returned successfully'], 200);
+        }
+    
+        return response()->json(['message' => 'Book not found or not borrowed by user'], 404);
     }
 }
