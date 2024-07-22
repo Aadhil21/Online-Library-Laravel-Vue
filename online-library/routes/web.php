@@ -26,11 +26,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('books', [BookController::class, 'index']);
-    Route::post('borrow', [BookController::class, 'store']);
-    Route::post('return-book', [BookController::class, 'returnBook']);
-    Route::get('my-library', [UserBookController::class, 'index']);
-});
-
 require __DIR__.'/auth.php';
+require __DIR__.'/api.php';
